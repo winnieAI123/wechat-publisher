@@ -154,7 +154,7 @@ INLINE_STYLES = {
         "color: #1F6FEB; text-decoration: none; "
         "border-bottom: 1px solid #1F6FEB;"
     ),
-    "strong": "color: #D9534F; font-weight: bold;",
+    "strong": "color: #1A1A1A; font-weight: bold;",
     "em": "color: #1A1A1A; font-style: italic;",
     "table": (
         "width: 100%; border-collapse: collapse; margin: 20px 0; "
@@ -518,8 +518,9 @@ def markdown_to_wechat_html(md_content, token=None, image_dir=None):
     md_content = _auto_fix_tables(md_content)
 
     # Markdown → HTML
-    html_body = markdown.markdown(
-        md_content,
+    # 注意：禁用 indented code block（4 空格缩进），只保留 ``` fenced code，
+    # 否则正文里被意外缩进的列表项/段落会被识别成代码块。
+    md_parser = markdown.Markdown(
         extensions=[
             "markdown.extensions.tables",
             "markdown.extensions.fenced_code",
@@ -528,6 +529,8 @@ def markdown_to_wechat_html(md_content, token=None, image_dir=None):
             "markdown.extensions.sane_lists",
         ]
     )
+    md_parser.parser.blockprocessors.deregister("code")
+    html_body = md_parser.convert(md_content)
 
     # 清理 class/id 属性（markdown 扩展可能添加的）
     html_body = re.sub(r'\s+class="[^"]*"', '', html_body)
