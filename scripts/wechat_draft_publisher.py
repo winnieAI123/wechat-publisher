@@ -294,6 +294,35 @@ def _strip_leading_h1(md):
     return re.sub(r'\A[ \t\r\n]*#[ \t]+[^\n]+\n*', '', md, count=1)
 
 
+def _unwrap_misused_fenced_code(md):
+    """自动 unwrap 误用的 fenced code block。
+
+    AI 生成 markdown 时偶尔会把强调短语包成单行 ``` 代码块，例如：
+        ```
+        **Improvement Loop（改进循环）**。代码生成后让 Codex 自我评审。
+        ```
+    这种结构在微信渲染时会显示成深色代码框里塞一行中文，非常突兀。
+    规则：单行 + 含 ** 或 __ markdown 强调标记 → 视为误用，unwrap 成普通段落。
+    """
+    pattern = re.compile(
+        r'^```[^\n]*\n'   # 开 fence（允许跟语言名）
+        r'([^\n]+)\n'     # 仅一行内容
+        r'```[ \t]*$',    # 闭 fence
+        re.MULTILINE
+    )
+    count = [0]
+    def replace(m):
+        line = m.group(1)
+        if "**" in line or "__" in line:
+            count[0] += 1
+            return line
+        return m.group(0)
+    out = pattern.sub(replace, md)
+    if count[0]:
+        print(f"⚠️ 自动 unwrap 了 {count[0]} 处可疑的单行代码块（含强调标记）")
+    return out
+
+
 def _apply_table_row_alternation(html):
     """为表格偶数行添加浅灰交替背景"""
     def process_table(table_match):
@@ -481,6 +510,9 @@ def markdown_to_wechat_html(md_content, token=None, image_dir=None):
 
     # 预处理：剥掉正文开头的 H1（微信顶栏已显示标题，避免重复）
     md_content = _strip_leading_h1(md_content)
+
+    # 预处理：unwrap 误用的单行 fenced code（AI 经常把强调短语包成代码块）
+    md_content = _unwrap_misused_fenced_code(md_content)
 
     # 预处理：自动检测 ASCII 框图并包裹成代码块
     md_content = _auto_fence_ascii_art(md_content)
