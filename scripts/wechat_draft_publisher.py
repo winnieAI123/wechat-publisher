@@ -96,82 +96,80 @@ def _find_credential_file():
 
 
 # ============================================================
-# 微信公众号排版 — 赛博禅心极简风内联样式
+# 微信公众号排版 — 莫兰迪学术风内联样式
 # ============================================================
 
-# 配色：纯黑正文 #1A1A1A | 强调红 #D9534F | 浅绿装饰 #A8D8B9
-# 行内代码：浅灰底 #F2F2F2 + 蓝字 #1F6FEB（vscode 风）
-# 引用：白底 + 左侧细灰边
-# 整体冷色调极简，背景纯白，留白宽松
+# 莫兰迪配色 + 学术风设计
+# 主色调：雾霾绿 #7B9E89 | 暖灰棕 #B8A08D | 赭石色 #B07D62
+# 背景色：暖白 #F5F0EB | 亚麻色 #F0ECE6 | 浅灰 #F8F5F0
 
 WRAPPER_STYLE = (
-    "font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', "
-    "'Helvetica Neue', 'Microsoft YaHei', Arial, sans-serif; "
-    "font-size: 15px; line-height: 1.9; color: #1A1A1A; padding: 0 8px; "
-    "letter-spacing: 0.3px;"
+    "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "
+    "'Helvetica Neue', Arial, sans-serif; "
+    "font-size: 16px; line-height: 2; color: #3C3C3C; padding: 0 8px; "
+    "letter-spacing: 0.5px;"
 )
 
 INLINE_STYLES = {
     "h1": (
-        "font-size: 22px; font-weight: bold; color: #D9534F; "
-        "margin: 32px 0 18px; padding-left: 12px; "
-        "border-left: 4px solid #A8D8B9; letter-spacing: 0.5px;"
+        "font-size: 22px; font-weight: bold; color: #3D4F5F; "
+        "margin: 30px 0 16px; padding-bottom: 10px; "
+        "border-bottom: 2px solid #8BA098; letter-spacing: 1px;"
     ),
     "h2": (
-        "font-size: 19px; font-weight: bold; color: #D9534F; "
-        "margin: 28px 0 14px; padding-left: 12px; "
-        "border-left: 4px solid #A8D8B9; letter-spacing: 0.5px;"
+        "font-size: 19px; font-weight: bold; color: #4A5A6A; "
+        "margin: 26px 0 14px; padding: 4px 0 4px 14px; "
+        "border-left: 4px solid #8BA098; letter-spacing: 0.5px;"
     ),
     "h3": (
-        "font-size: 16px; font-weight: bold; color: #1A1A1A; "
-        "margin: 22px 0 10px; letter-spacing: 0.3px;"
+        "font-size: 17px; font-weight: bold; color: #5A6A7A; "
+        "margin: 22px 0 10px; letter-spacing: 0.5px;"
     ),
     "p": (
-        "margin: 16px 0; text-align: justify; line-height: 1.9; "
-        "color: #1A1A1A; letter-spacing: 0.3px;"
+        "margin: 14px 0; text-align: justify; line-height: 2; "
+        "color: #3C3C3C; letter-spacing: 0.5px;"
     ),
     "blockquote": (
-        "margin: 20px 0; padding: 4px 0 4px 16px; "
-        "border-left: 3px solid #D0D0D0; "
-        "color: #666666; font-size: 14px; line-height: 1.9;"
+        "margin: 20px 0; padding: 16px 20px; "
+        "background: #F5F0EB; border-left: 4px solid #B8A08D; "
+        "color: #6B6B6B; font-size: 15px; "
+        "border-radius: 0 6px 6px 0; line-height: 1.9;"
     ),
     "code": (
-        "background: #F2F2F2; padding: 2px 6px; border-radius: 3px; "
-        "font-size: 13px; color: #1F6FEB; "
-        "font-family: 'SF Mono', Consolas, Monaco, monospace;"
+        "background: #F0ECE6; padding: 2px 6px; border-radius: 3px; "
+        "font-size: 14px; color: #8B6E4E;"
     ),
     "pre": (
-        "background: #1E1E1E; color: #E8E8E8; padding: 16px 20px; "
-        "border-radius: 0 0 8px 8px; overflow-x: auto; font-size: 13px; "
-        "line-height: 1.7; margin: 0; "
-        "font-family: 'SF Mono', 'Menlo', Consolas, Monaco, monospace;"
+        "background: #2D3436; color: #DFE6E9; padding: 18px; "
+        "border-radius: 8px; overflow-x: auto; font-size: 13px; "
+        "line-height: 1.6; margin: 16px 0;"
     ),
-    "ul": "margin: 16px 0; padding-left: 24px; color: #1A1A1A;",
-    "ol": "margin: 16px 0; padding-left: 24px; color: #1A1A1A;",
-    "li": "margin: 6px 0; line-height: 1.9;",
-    "img": "max-width: 100%; border-radius: 4px; margin: 18px 0;",
+    "ul": "margin: 14px 0; padding-left: 24px; color: #3C3C3C;",
+    "ol": "margin: 14px 0; padding-left: 24px; color: #3C3C3C;",
+    "li": "margin: 8px 0; line-height: 1.9;",
+    "img": "max-width: 100%; border-radius: 6px; margin: 16px 0;",
     "a": (
-        "color: #1F6FEB; text-decoration: none; "
-        "border-bottom: 1px solid #1F6FEB;"
+        "color: #7B9E89; text-decoration: none; "
+        "border-bottom: 1px solid #7B9E89;"
     ),
-    "strong": "color: #1A1A1A; font-weight: bold;",
-    "em": "color: #1A1A1A; font-style: italic;",
+    "strong": "color: #B07D62; font-weight: bold;",
+    "em": "color: #6B8E7B; font-style: italic;",
     "table": (
         "width: 100%; border-collapse: collapse; margin: 20px 0; "
         "font-size: 14px;"
     ),
     "th": (
-        "background: #F5F5F5; color: #1A1A1A; padding: 10px 14px; "
-        "text-align: left; font-weight: 600; "
-        "border-bottom: 2px solid #D0D0D0;"
+        "background: #7B9E89; color: white; padding: 10px 14px; "
+        "text-align: left; font-weight: 600; letter-spacing: 0.5px;"
     ),
     "td": (
-        "padding: 10px 14px; border-bottom: 1px solid #EEEEEE; "
-        "color: #1A1A1A;"
+        "padding: 10px 14px; border-bottom: 1px solid #E8E4DF; "
+        "color: #4A4A4A;"
     ),
     "hr": (
-        "border: none; height: 1px; background: #E5E5E5; "
-        "margin: 32px 0;"
+        "border: none; height: 1px; "
+        "background: linear-gradient(to right, transparent, #B8A08D, transparent); "
+        "margin: 28px 0;"
     ),
 }
 
@@ -180,23 +178,6 @@ PRE_CODE_STYLE = (
     "background: none; color: inherit; padding: 0; "
     "font-size: inherit; border-radius: 0;"
 )
-
-# 代码块外层 mac 终端风格容器
-TERMINAL_FRAME_STYLE = (
-    "margin: 20px 0; border-radius: 8px; overflow: hidden; "
-    "box-shadow: 0 2px 8px rgba(0,0,0,0.08);"
-)
-TERMINAL_HEADER_STYLE = (
-    "background: #2D2D2D; padding: 10px 14px; "
-    "border-radius: 8px 8px 0 0; line-height: 0;"
-)
-TERMINAL_DOT_STYLE_BASE = (
-    "display: inline-block; width: 12px; height: 12px; "
-    "border-radius: 50%; margin-right: 6px; vertical-align: middle;"
-)
-TERMINAL_DOT_RED = TERMINAL_DOT_STYLE_BASE + " background: #FF5F56;"
-TERMINAL_DOT_YELLOW = TERMINAL_DOT_STYLE_BASE + " background: #FFBD2E;"
-TERMINAL_DOT_GREEN = TERMINAL_DOT_STYLE_BASE + " background: #27C93F;"
 
 
 # ============================================================
@@ -305,28 +286,12 @@ def _apply_inline_styles(html):
     )
     # 表格偶数行交替背景色
     html = _apply_table_row_alternation(html)
-    # 给代码块加 mac 终端风格外壳（3 个交通灯小点）
-    html = _wrap_code_blocks_with_terminal_frame(html)
     return html
 
 
-def _wrap_code_blocks_with_terminal_frame(html):
-    """把每个 <pre>...</pre> 包成 mac 终端风格容器，顶部有 3 个交通灯小点"""
-    def wrap(match):
-        pre_block = match.group(0)
-        header = (
-            f'<section style="{TERMINAL_HEADER_STYLE}">'
-            f'<span style="{TERMINAL_DOT_RED}"></span>'
-            f'<span style="{TERMINAL_DOT_YELLOW}"></span>'
-            f'<span style="{TERMINAL_DOT_GREEN}"></span>'
-            f'</section>'
-        )
-        return (
-            f'<section style="{TERMINAL_FRAME_STYLE}">'
-            f'{header}{pre_block}'
-            f'</section>'
-        )
-    return re.sub(r'<pre[^>]*>.*?</pre>', wrap, html, flags=re.DOTALL)
+def _strip_leading_h1(md):
+    """剥掉正文最开头的 H1（微信顶栏已显示文章标题，正文再写一遍会重复）"""
+    return re.sub(r'\A[ \t\r\n]*#[ \t]+[^\n]+\n*', '', md, count=1)
 
 
 def _apply_table_row_alternation(html):
@@ -490,7 +455,10 @@ def _auto_fence_ascii_art(md_content):
 
 
 def markdown_to_wechat_html(md_content, token=None, image_dir=None):
-    """Markdown → 微信兼容 HTML（莫兰迪学术风内联样式 + 图片上传）"""
+    """Markdown → 微信兼容 HTML（莫兰迪学术风内联样式 + 图片上传）
+
+    预处理顺序：剥 H1 → 包 ASCII 框图为代码块 → 修表格分隔 → 转 HTML → 注入内联样式
+    """
 
     # 处理本地图片引用
     if token and image_dir:
@@ -510,6 +478,9 @@ def markdown_to_wechat_html(md_content, token=None, image_dir=None):
             return match.group(0)
 
         md_content = re.sub(r'!\[(.*?)\]\((.*?)\)', replace_image, md_content)
+
+    # 预处理：剥掉正文开头的 H1（微信顶栏已显示标题，避免重复）
+    md_content = _strip_leading_h1(md_content)
 
     # 预处理：自动检测 ASCII 框图并包裹成代码块
     md_content = _auto_fence_ascii_art(md_content)

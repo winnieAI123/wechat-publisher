@@ -1,6 +1,6 @@
 ---
 name: wechat-publisher
-description: 'Publish articles to WeChat Official Account (微信公众号) as drafts via API with professional Cyber-Zen minimalist formatting (赛博禅心风). Use this skill whenever the user asks to "发公众号", "推送到公众号", "发微信文章", "写一篇公众号文章", "写公众号", "公众号排版", "publish to WeChat", "公众号草稿", or mentions creating/writing/publishing content for their WeChat Official Account. This skill handles the FULL workflow — writing Markdown, generating cover image, converting to beautifully formatted WeChat HTML, uploading media, creating draft. ABSOLUTE RULE — you MUST use wechat_draft_publisher.py for ALL WeChat publishing. NEVER construct HTML manually or call WeChat API directly; the script contains inline styling that is REQUIRED for proper formatting. Without the script, articles will appear as ugly unstyled plain text.'
+description: 'Publish articles to WeChat Official Account (微信公众号) as drafts via API with professional Morandi-style academic formatting. Use this skill whenever the user asks to "发公众号", "推送到公众号", "发微信文章", "写一篇公众号文章", "写公众号", "公众号排版", "publish to WeChat", "公众号草稿", or mentions creating/writing/publishing content for their WeChat Official Account. This skill handles the FULL workflow — writing Markdown, generating cover image, converting to beautifully formatted WeChat HTML, uploading media, creating draft. ABSOLUTE RULE — you MUST use wechat_draft_publisher.py for ALL WeChat publishing. NEVER construct HTML manually or call WeChat API directly; the script contains inline styling that is REQUIRED for proper formatting. Without the script, articles will appear as ugly unstyled plain text.'
 ---
 
 # WeChat Official Account Publisher (微信公众号发文)
@@ -57,7 +57,7 @@ python -m pip install markdown requests
 ## Critical Rules
 
 > ⚠️ **MUST use wechat_draft_publisher.py for ALL publishing!**
-> The script contains赛博禅心极简风 inline CSS that is ESSENTIAL for formatting.
+> The script contains莫兰迪学术风 inline CSS that is ESSENTIAL for formatting.
 > If you construct HTML yourself or call the WeChat API directly, the article will have NO STYLING and look terrible.
 > ALWAYS run: `python "<skill-path>/scripts/wechat_draft_publisher.py" --markdown "article.md" --cover "cover.png"`
 
