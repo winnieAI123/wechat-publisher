@@ -113,24 +113,24 @@ WRAPPER_STYLE = (
 INLINE_STYLES = {
     "h1": (
         "font-size: 22px; font-weight: bold; color: #3D4F5F; "
-        "margin: 30px 0 16px; padding-bottom: 10px; "
+        "margin: 36px 0 20px; padding-bottom: 10px; "
         "border-bottom: 2px solid #8BA098; letter-spacing: 1px;"
     ),
     "h2": (
         "font-size: 19px; font-weight: bold; color: #4A5A6A; "
-        "margin: 26px 0 14px; padding: 4px 0 4px 14px; "
+        "margin: 30px 0 18px; padding: 4px 0 4px 14px; "
         "border-left: 4px solid #8BA098; letter-spacing: 0.5px;"
     ),
     "h3": (
         "font-size: 17px; font-weight: bold; color: #5A6A7A; "
-        "margin: 22px 0 10px; letter-spacing: 0.5px;"
+        "margin: 26px 0 14px; letter-spacing: 0.5px;"
     ),
     "p": (
-        "margin: 14px 0; text-align: justify; line-height: 2; "
+        "margin: 20px 0; text-align: justify; line-height: 2; "
         "color: #3C3C3C; letter-spacing: 0.5px;"
     ),
     "blockquote": (
-        "margin: 20px 0; padding: 16px 20px; "
+        "margin: 26px 0; padding: 16px 20px; "
         "background: #F5F0EB; border-left: 4px solid #B8A08D; "
         "color: #6B6B6B; font-size: 15px; "
         "border-radius: 0 6px 6px 0; line-height: 1.9;"
@@ -144,10 +144,10 @@ INLINE_STYLES = {
         "border-radius: 8px; overflow-x: auto; font-size: 13px; "
         "line-height: 1.6; margin: 16px 0;"
     ),
-    "ul": "margin: 14px 0; padding-left: 24px; color: #3C3C3C;",
-    "ol": "margin: 14px 0; padding-left: 24px; color: #3C3C3C;",
-    "li": "margin: 8px 0; line-height: 1.9;",
-    "img": "max-width: 100%; border-radius: 6px; margin: 16px 0;",
+    "ul": "margin: 20px 0; padding-left: 24px; color: #3C3C3C;",
+    "ol": "margin: 20px 0; padding-left: 24px; color: #3C3C3C;",
+    "li": "margin: 12px 0; line-height: 1.9;",
+    "img": "max-width: 100%; border-radius: 6px; margin: 22px 0;",
     "a": (
         "color: #7B9E89; text-decoration: none; "
         "border-bottom: 1px solid #7B9E89;"
