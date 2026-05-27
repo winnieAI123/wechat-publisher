@@ -426,26 +426,31 @@ def _auto_fence_ascii_art(md_content):
     """
     自动检测 ASCII 框图/流程图并包裹成代码块，
     避免 markdown 库将其当普通段落处理导致空格丢失和 &nbsp; 泄漏。
-    检测规则：连续行中包含 box-drawing Unicode 字符（┌│├└┐┤┘─═║ 等）
+    检测规则：连续 ≥2 行都包含真正的 box-drawing 字符才算 ASCII art。
+    注意：方向箭头（→ ← ↑ ↓ ▶ ◀ ▲ ▼）不算 box char，中文写作里常用作修辞标点。
     """
-    BOX_CHARS = set('┌┐└┘├┤┬┴┼─│═║╔╗╚╝╠╣╦╩╬▼▶◀▲↓↑←→')
+    BOX_CHARS = set('┌┐└┘├┤┬┴┼─│═║╔╗╚╝╠╣╦╩╬')
     lines = md_content.split('\n')
     result = []
-    in_art_block = False
     art_buffer = []
     in_existing_fence = False
+
+    def flush_art():
+        # 只有 ≥2 行才算真 ASCII art；单行视为 prose 直接放回
+        if len(art_buffer) >= 2:
+            result.append('```')
+            result.extend(art_buffer)
+            result.append('```')
+        else:
+            result.extend(art_buffer)
+        art_buffer.clear()
 
     for line in lines:
         stripped = line.strip()
 
-        # 跳过已有的代码块
         if stripped.startswith('```'):
             in_existing_fence = not in_existing_fence
-            if in_art_block:
-                result.append('```')
-                result.extend(art_buffer)
-                art_buffer = []
-                in_art_block = False
+            flush_art()
             result.append(line)
             continue
 
@@ -453,33 +458,15 @@ def _auto_fence_ascii_art(md_content):
             result.append(line)
             continue
 
-        # 判断该行是否包含 box-drawing 字符
         has_box = any(c in BOX_CHARS for c in line)
 
-        if has_box and not in_art_block:
-            # 开始 ASCII art 块
-            in_art_block = True
-            art_buffer = [line]
-        elif has_box and in_art_block:
-            # 继续 ASCII art 块
+        if has_box:
             art_buffer.append(line)
-        elif not has_box and in_art_block:
-            # ASCII art 块结束，包裹成代码块
-            result.append('```')
-            result.extend(art_buffer)
-            result.append('```')
-            art_buffer = []
-            in_art_block = False
-            result.append(line)
         else:
+            flush_art()
             result.append(line)
 
-    # 处理文件末尾的 art 块
-    if in_art_block and art_buffer:
-        result.append('```')
-        result.extend(art_buffer)
-        result.append('```')
-
+    flush_art()
     return '\n'.join(result)
 
 
