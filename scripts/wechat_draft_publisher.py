@@ -105,7 +105,7 @@ def _find_credential_file():
 WRAPPER_STYLE = (
     "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "
     "'Helvetica Neue', Arial, sans-serif; "
-    "font-size: 16px; line-height: 2; color: #3C3C3C; padding: 0 8px; "
+    "font-size: 16px; line-height: 2.2; color: #3C3C3C; padding: 0 8px; "
     "letter-spacing: 0.5px;"
 )
 
@@ -125,7 +125,7 @@ INLINE_STYLES = {
         "margin: 26px 0 14px; letter-spacing: 0.5px;"
     ),
     "p": (
-        "margin: 20px 0; text-align: justify; line-height: 2; "
+        "margin: 22px 0; text-align: justify; line-height: 2.2; "
         "color: #3C3C3C; letter-spacing: 0.5px;"
     ),
     "blockquote": (
@@ -289,7 +289,36 @@ def _apply_inline_styles(html):
     html = _transform_numbered_headings(html)
     # 列表去原生 <ul>/<li>，改自定义 bullet 段落（根治微信幽灵空圆点）
     html = _delist_for_wechat(html)
+    # 数据来源/免责声明脚注：降级为灰色小字、去高亮
+    html = _mute_source_footer(html)
     return html
+
+
+def _mute_source_footer(html):
+    """把「数据来源说明 / 免责声明」标题起至文末整段降级为灰色小字、去棕色高亮。
+
+    适用于报告末尾的来源/免责脚注（应放在正文最后）。若该标题出现在正文中段，
+    其后所有内容都会被降级——脚注请置于文末。
+    """
+    gray = "#9AA0A6"
+    m = re.search(r'<p[^>]*>[^<]*(数据来源|免责声明|风险提示与声明)[^<]*</p>', html)
+    if not m:
+        return html
+    before, heading, rest = html[:m.start()], m.group(0), html[m.end():]
+    heading = re.sub(
+        r'^<p[^>]*>',
+        f'<p style="font-size: 15px; font-weight: bold; color: {gray}; '
+        'margin: 34px 0 10px; letter-spacing: 0.3px;">',
+        heading,
+    )
+    small = (
+        f"font-size: 13px; color: {gray}; line-height: 1.9; "
+        "margin: 12px 0; letter-spacing: 0.3px; text-align: justify;"
+    )
+    rest = re.sub(r'<p\b[^>]*>', f'<p style="{small}">', rest)
+    rest = re.sub(r'<strong\b[^>]*>', f'<strong style="color: {gray}; font-weight: 600;">', rest)
+    rest = rest.replace("color: #7B9E89; font-weight: bold;", f"color: {gray}; font-weight: bold;")
+    return before + heading + rest
 
 
 def _delist_for_wechat(html):
@@ -301,7 +330,7 @@ def _delist_for_wechat(html):
     注：仅支持单层列表（本场景无嵌套）。
     """
     item_style = (
-        "margin: 10px 0; line-height: 1.9; color: #3C3C3C; "
+        "margin: 12px 0; line-height: 2.1; color: #3C3C3C; "
         "text-align: justify; letter-spacing: 0.5px;"
     )
     marker_style = "color: #7B9E89; font-weight: bold;"
@@ -550,11 +579,165 @@ def _auto_fence_ascii_art(md_content):
     return '\n'.join(result)
 
 
-def markdown_to_wechat_html(md_content, token=None, image_dir=None):
+def _find_cjk_font():
+    """找一个可用中文字体（macOS / Windows / Linux 常见路径）"""
+    for c in (
+        "/System/Library/Fonts/STHeiti Medium.ttc",
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+        "C:/Windows/Fonts/msyh.ttc",
+        "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    ):
+        if Path(c).exists():
+            return c
+    return None
+
+
+def _parse_md_tables(md):
+    """扫描 markdown 表格块，返回 [(起始行, 结束行, 表头, 行列表), ...]"""
+    lines = md.split("\n")
+    tables, i = [], 0
+    while i < len(lines):
+        if (lines[i].lstrip().startswith("|") and i + 1 < len(lines)
+                and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1])):
+            start = i
+            header = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+            i += 2
+            rows = []
+            while i < len(lines) and lines[i].lstrip().startswith("|"):
+                rows.append([c.strip() for c in lines[i].strip().strip("|").split("|")])
+                i += 1
+            tables.append((start, i, header, rows))
+        else:
+            i += 1
+    return tables
+
+
+def _render_table_png(headers, rows, out_path, font_path):
+    """把单个表格渲染成莫兰迪风 PNG（绿表头 + 交替行 + 强调单元格棕色）。
+
+    微信公众号正文不支持横向滚动，宽表只能转图片才不会逐字换行。
+    """
+    from PIL import Image, ImageDraw, ImageFont
+
+    s = 2  # 2x 渲染保证清晰
+    fs, pad_x, pad_y, gap = 17 * s, 16 * s, 12 * s, 7 * s
+    col_max, col_min = 210 * s, 70 * s
+    C_HBG, C_HTX = (123, 158, 137), (255, 255, 255)
+    C_RA, C_RB, C_GRID = (255, 255, 255), (246, 242, 237), (227, 221, 212)
+    C_TX, C_EM = (60, 60, 60), (176, 125, 98)
+
+    font = ImageFont.truetype(font_path, fs)
+    tmp = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    grid = [headers] + rows
+    ncol = len(headers)
+
+    def clean(cell):
+        return cell.replace("**", "").strip(), ("**" in cell)
+
+    def wrap(text, max_w):
+        if not text:
+            return [""]
+        out, cur = [], ""
+        for ch in text:
+            if tmp.textlength(cur + ch, font=font) <= max_w or not cur:
+                cur += ch
+            else:
+                out.append(cur)
+                cur = ch
+        if cur:
+            out.append(cur)
+        return out
+
+    col_w = []
+    for c in range(ncol):
+        w = max(tmp.textlength(clean(r[c])[0] if c < len(r) else "", font=font)
+                for r in grid)
+        col_w.append(int(min(max(w + 2 * pad_x, col_min), col_max)))
+
+    wrapped, row_h = [], []
+    for r in grid:
+        cells, maxlines = [], 1
+        for c in range(ncol):
+            txt, emph = clean(r[c]) if c < len(r) else ("", False)
+            ls = wrap(txt, col_w[c] - 2 * pad_x)
+            cells.append((ls, emph))
+            maxlines = max(maxlines, len(ls))
+        wrapped.append(cells)
+        row_h.append(maxlines * fs + (maxlines - 1) * gap + 2 * pad_y)
+
+    total_w, total_h = sum(col_w) + 1, sum(row_h) + 1
+    img = Image.new("RGB", (total_w, total_h), (255, 255, 255))
+    d = ImageDraw.Draw(img)
+    y = 0
+    for ri, cells in enumerate(wrapped):
+        h, is_h = row_h[ri], ri == 0
+        bg = C_HBG if is_h else (C_RA if ri % 2 == 1 else C_RB)
+        d.rectangle([0, y, total_w - 1, y + h], fill=bg)
+        x = 0
+        for c in range(ncol):
+            ls, emph = cells[c]
+            color = C_HTX if is_h else (C_EM if emph else C_TX)
+            ty = y + pad_y
+            for ln in ls:
+                d.text((x + pad_x, ty), ln, font=font, fill=color)
+                ty += fs + gap
+            x += col_w[c]
+        y += h
+    lw = max(1, s // 2)
+    d.rectangle([0, 0, total_w - 1, total_h - 1], outline=C_GRID, width=lw)
+    yy = 0
+    for ri in range(len(grid)):
+        yy += row_h[ri]
+        d.line([0, yy, total_w - 1, yy], fill=C_GRID, width=lw)
+    xx = 0
+    for c in range(ncol):
+        xx += col_w[c]
+        d.line([xx, 0, xx, total_h - 1], fill=C_GRID, width=lw)
+    img.save(out_path)
+
+
+def _render_md_tables_to_images(md, token):
+    """把 markdown 表格渲染成图片并上传，替换为图片引用；任何失败都保留文字表格。"""
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        print("  ⚠️ 未装 Pillow，表格保持文字（python -m pip install pillow）")
+        return md
+    font_path = _find_cjk_font()
+    if not font_path:
+        print("  ⚠️ 未找到中文字体，表格保持文字")
+        return md
+    tables = _parse_md_tables(md)
+    if not tables:
+        return md
+
+    import tempfile
+    tmpdir = Path(tempfile.mkdtemp(prefix="wxtable_"))
+    lines = md.split("\n")
+    print(f"  🖼️ 渲染 {len(tables)} 个表格为图片...")
+    for idx, (start, end, hdr, rows) in reversed(list(enumerate(tables, 1))):
+        try:
+            png = tmpdir / f"table_{idx}.png"
+            _render_table_png(hdr, rows, png, font_path)
+            url = upload_article_image(png, token)
+            lines[start:end] = [f"![表{idx}]({url})"]
+        except Exception as e:
+            print(f"  ⚠️ 表{idx} 渲染失败，保留文字表格: {e}")
+    return "\n".join(lines)
+
+
+def markdown_to_wechat_html(md_content, token=None, image_dir=None,
+                            tables_as_images=True):
     """Markdown → 微信兼容 HTML（莫兰迪学术风内联样式 + 图片上传）
 
     预处理顺序：剥 H1 → 包 ASCII 框图为代码块 → 修表格分隔 → 转 HTML → 注入内联样式
     """
+
+    # 预处理：宽表转图片（微信正文不支持横向滚动，文字表会逐字换行）
+    if token and tables_as_images:
+        md_content = _render_md_tables_to_images(md_content, token)
 
     # 处理本地图片引用
     if token and image_dir:
@@ -655,7 +838,8 @@ def extract_title_from_md(md_content):
 # 主入口
 # ============================================================
 
-def publish_from_markdown(md_file, cover_image=None, app_id=None, app_secret=None):
+def publish_from_markdown(md_file, cover_image=None, app_id=None, app_secret=None,
+                          tables_as_images=True):
     """
     一键入口：从 Markdown 文件创建微信公众号草稿
 
@@ -686,7 +870,8 @@ def publish_from_markdown(md_file, cover_image=None, app_id=None, app_secret=Non
 
     # 4. 转换 HTML
     print("\n🔄 转换 Markdown → 微信 HTML...")
-    html_content = markdown_to_wechat_html(md_content, token=token, image_dir=md_file.parent)
+    html_content = markdown_to_wechat_html(md_content, token=token, image_dir=md_file.parent,
+                                           tables_as_images=tables_as_images)
     print(f"  ✅ HTML 生成完毕（{len(html_content)} 字符）")
 
     # 5. 上传封面图
@@ -768,6 +953,8 @@ def main():
     parser.add_argument("--cover", "-c", type=str, help="封面图路径（推荐 900x383）")
     parser.add_argument("--app-id", type=str, help="微信 AppID（也可用环境变量 WECHAT_APP_ID）")
     parser.add_argument("--app-secret", type=str, help="微信 AppSecret（也可用环境变量 WECHAT_APP_SECRET）")
+    parser.add_argument("--no-table-images", action="store_true",
+                        help="表格保持文字形式（默认转图片，规避微信宽表逐字换行）")
 
     args = parser.parse_args()
 
@@ -784,7 +971,8 @@ def main():
         md_file=args.markdown,
         cover_image=args.cover,
         app_id=args.app_id,
-        app_secret=args.app_secret
+        app_secret=args.app_secret,
+        tables_as_images=not args.no_table_images,
     )
 
 
