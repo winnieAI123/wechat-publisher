@@ -1,7 +1,7 @@
 """
 微信公众号半自动发文脚本（自包含版）
 功能：Markdown → 微信兼容HTML → 上传图片 → 创建草稿
-凭证读取优先级：环境变量 > openclaw.json skills config > 命令行参数
+凭证读取优先级：命令行参数 > 环境变量 > ~/.config/wechat-publisher/credentials.json
 
 用法：
   # 通过环境变量配置（推荐）
@@ -52,7 +52,7 @@ def load_credentials(cli_app_id=None, cli_app_secret=None):
     按优先级加载 AppID 和 AppSecret：
     1. 命令行参数
     2. 环境变量 WECHAT_APP_ID / WECHAT_APP_SECRET
-    3. 凭证文件 ~/.openclaw/credentials/wechat-publisher.json
+    3. 凭证文件 ~/.config/wechat-publisher/credentials.json
     """
     app_id = cli_app_id or os.environ.get("WECHAT_APP_ID")
     app_secret = cli_app_secret or os.environ.get("WECHAT_APP_SECRET")
@@ -73,7 +73,7 @@ def load_credentials(cli_app_id=None, cli_app_secret=None):
     if not app_id or not app_secret:
         raise RuntimeError(
             "❌ 未找到微信公众号凭证！请通过以下方式之一配置：\n"
-            "  1. 凭证文件: ~/.openclaw/credentials/wechat-publisher.json\n"
+            "  1. 凭证文件: ~/.config/wechat-publisher/credentials.json\n"
             "     内容: {\"appId\": \"xxx\", \"appSecret\": \"xxx\"}\n"
             "  2. 环境变量: set WECHAT_APP_ID=xxx && set WECHAT_APP_SECRET=xxx\n"
             "  3. 命令行: --app-id xxx --app-secret xxx"
@@ -85,9 +85,8 @@ def load_credentials(cli_app_id=None, cli_app_secret=None):
 def _find_credential_file():
     """查找微信凭证文件"""
     candidates = [
-        Path.home() / ".openclaw" / "credentials" / "wechat-publisher.json",
-        Path.home() / ".clawdbot" / "credentials" / "wechat-publisher.json",
-        SCRIPT_DIR / "credentials.json",  # skill 目录内
+        Path.home() / ".config" / "wechat-publisher" / "credentials.json",
+        SCRIPT_DIR / "credentials.json",  # skill 目录内（需在 .gitignore 中）
     ]
     for p in candidates:
         if p.exists():
@@ -146,7 +145,7 @@ INLINE_STYLES = {
     ),
     "ul": "margin: 20px 0; padding-left: 24px; color: #3C3C3C;",
     "ol": "margin: 20px 0; padding-left: 24px; color: #3C3C3C;",
-    "li": "margin: 12px 0; line-height: 1.9;",
+    "li": "margin: 0; padding: 6px 0; line-height: 1.9;",
     "img": "max-width: 100%; border-radius: 6px; margin: 22px 0;",
     "a": (
         "color: #7B9E89; text-decoration: none; "
@@ -286,7 +285,88 @@ def _apply_inline_styles(html):
     )
     # 表格偶数行交替背景色
     html = _apply_table_row_alternation(html)
+    # 章节标题转「大号编号风」（大号数字编号 + 大号粗体标题，去边框）
+    html = _transform_numbered_headings(html)
+    # 列表去原生 <ul>/<li>，改自定义 bullet 段落（根治微信幽灵空圆点）
+    html = _delist_for_wechat(html)
     return html
+
+
+def _delist_for_wechat(html):
+    """把 <ul>/<ol> 转成带自定义符号的 <p> 段落。
+
+    微信手机端渲染器对 <li> 的任何垂直间距都会插入一个无内容的「幽灵 bullet」，
+    margin / padding 都触发。彻底规避的唯一办法是不用原生列表：
+    每个 li → 一个 <p>，前缀手动加绿色「•」（ul）或「N.」（ol）。
+    注：仅支持单层列表（本场景无嵌套）。
+    """
+    item_style = (
+        "margin: 10px 0; line-height: 1.9; color: #3C3C3C; "
+        "text-align: justify; letter-spacing: 0.5px;"
+    )
+    marker_style = "color: #7B9E89; font-weight: bold;"
+
+    def conv_ul(m):
+        items = re.findall(r'<li[^>]*>(.*?)</li>', m.group(1), re.S)
+        return "".join(
+            f'<p style="{item_style}">'
+            f'<span style="{marker_style}">• </span>{it.strip()}</p>'
+            for it in items
+        )
+
+    def conv_ol(m):
+        items = re.findall(r'<li[^>]*>(.*?)</li>', m.group(1), re.S)
+        return "".join(
+            f'<p style="{item_style}">'
+            f'<span style="{marker_style}">{i}. </span>{it.strip()}</p>'
+            for i, it in enumerate(items, 1)
+        )
+
+    html = re.sub(r'<ul[^>]*>(.*?)</ul>', conv_ul, html, flags=re.S)
+    html = re.sub(r'<ol[^>]*>(.*?)</ol>', conv_ol, html, flags=re.S)
+    return html
+
+
+_CN_NUM = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5,
+           "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
+
+
+def _transform_numbered_headings(html):
+    """把 <h2> 章节标题渲染成「大号编号风」（参考用户喜欢的杂志体）：
+
+    - 形如「二、星链：…」→ 大号绿色数字「02.」+ 下面大号深色粗体标题，无边框
+    - 无编号前缀的 h2（如「数据来源说明」）→ 干净大号粗体标题，无边框
+    微信会过滤 class/<style>，故全部用内联样式 + <section>/<p>。
+    """
+    def repl(m):
+        inner = m.group(1).strip()
+        mnum = re.match(r'^([一二三四五六七八九十]|\d{1,2})、\s*(.+)$', inner, re.S)
+        if mnum:
+            raw, title = mnum.group(1), mnum.group(2).strip()
+            num = _CN_NUM.get(raw)
+            if num is None:
+                try:
+                    num = int(raw)
+                except ValueError:
+                    num = None
+            label = f"{num:02d}." if num is not None else f"{raw}、"
+            return (
+                '<section style="margin: 46px 0 22px;">'
+                f'<p style="font-size: 48px; font-weight: bold; color: #7B9E89; '
+                'line-height: 1; margin: 0 0 8px; letter-spacing: 1px;">'
+                f'{label}</p>'
+                f'<p style="font-size: 27px; font-weight: bold; color: #33404A; '
+                'line-height: 1.45; margin: 0; letter-spacing: 0.5px;">'
+                f'{title}</p>'
+                '</section>'
+            )
+        return (
+            '<p style="font-size: 26px; font-weight: bold; color: #33404A; '
+            'line-height: 1.5; margin: 42px 0 18px; letter-spacing: 0.5px;">'
+            f'{inner}</p>'
+        )
+
+    return re.sub(r'<h2[^>]*>(.*?)</h2>', repl, html, flags=re.S)
 
 
 def _strip_leading_h1(md):

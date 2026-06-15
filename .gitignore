@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .wechat_token_cache.json
 .DS_Store
+credentials.json

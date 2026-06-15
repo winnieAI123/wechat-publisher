@@ -21,18 +21,12 @@ wechat-publisher/
 
 ### 1. Credentials
 
-The script reads WeChat credentials from `openclaw.json`:
+The script reads WeChat credentials from `~/.config/wechat-publisher/credentials.json`:
 
 ```json
 {
-  "skills": {
-    "entries": {
-      "wechat-publisher": {
-        "appId": "your_wechat_app_id",
-        "appSecret": "your_wechat_app_secret"
-      }
-    }
-  }
+  "appId": "your_wechat_app_id",
+  "appSecret": "your_wechat_app_secret"
 }
 ```
 
