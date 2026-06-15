@@ -79,28 +79,30 @@ Save to: `D:\OpenClawResult\YYYY-MM-DD\article_name.md`
 
 **每篇文章必须用 nano-banana-pro 根据文章内容生成一张全新的封面图。** 禁止使用默认封面或复用旧图。
 
-**封面风格要求（严格执行）：**
-- **风格**: 简约学术手绘风（minimalist academic hand-drawn illustration）
-- **配色**: 柔和素雅，偏米白/浅灰底色，线条用深灰/墨色
-- **元素**: 与文章主题相关的简笔画式图标/符号/示意图
-- **构图**: 留白充足，不要太满，学术论文插图的感觉
+**封面风格要求（严格执行）—— 现代科技蓝图手绘风：**
+- **风格**: 现代科技手绘线稿 / 工程蓝图风（modern tech hand-drawn line illustration, engineering-blueprint aesthetic）
+- **配色**: 电光蓝 + 青色线条，近白底色，背景带淡淡的蓝图方格网（faint blueprint grid）
+- **元素**: 与文章主题相关的简笔线描图标/符号/示意图
+- **构图**: 留白充足，不要太满
 - **比例**: 2.35:1 横版（900×383）
-- **禁止**: 花哨的渐变、3D效果、过于写实的照片风格
+- **禁止**: 花哨渐变、3D效果、照片写实风格
 - **禁止**: 图上放文字（微信会自动叠加标题）
 
 **Prompt 模板（给 nano-banana-pro）：**
 ```
-Minimalist academic hand-drawn illustration about [文章核心主题].
-Soft muted color palette on off-white background.
-Simple ink-style line drawings of [相关视觉元素].
-Clean composition with generous whitespace.
-Academic paper illustration style. Aspect ratio 2.35:1. No text.
+Modern tech-style hand-drawn line illustration, wide banner.
+Hand-sketched ink line art of [相关视觉元素].
+Electric blue and cyan ink lines on a near-white background, with a faint
+blueprint / technical-drawing grid behind. Crisp thin pen strokes, modern
+engineering-blueprint aesthetic, generous whitespace.
+Wide aspect ratio 2.35:1. Absolutely no text, no letters, no numbers.
+No 3D, no photo-realism.
 ```
 
 **示例：**
-- AI Agent 文章 → 手绘的互联机器人 + 工作流箭头
-- 投资分析文章 → 简笔画的上升趋势线 + 放大镜
-- 芯片行业文章 → 手绘电路板 + 芯片示意图
+- AI Agent 文章 → 手绘机器人 + 工作流箭头，蓝青线条 + 蓝图网格
+- 投资分析文章 → 上升趋势线 + 放大镜，蓝青线条 + 蓝图网格
+- 芯片行业文章 → 电路板 + 芯片示意图，蓝青线条 + 蓝图网格
 
 将封面图保存到与文章同一目录。
 
