@@ -99,13 +99,13 @@ def _find_credential_file():
 # ============================================================
 
 # 莫兰迪配色 + 学术风设计
-# 主色调：雾霾绿 #7B9E89 | 暖灰棕 #B8A08D | 赭石色 #B07D62
+# 主色调：亮雾绿 #6DB390（标题/表头/行内强调/引用块竖条统一） | 深绿 #4C9070（表格强调单元格）
 # 背景色：暖白 #F5F0EB | 亚麻色 #F0ECE6 | 浅灰 #F8F5F0
 
 WRAPPER_STYLE = (
     "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, "
     "'Helvetica Neue', Arial, sans-serif; "
-    "font-size: 16px; line-height: 2.2; color: #3C3C3C; padding: 0 8px; "
+    "font-size: 16px; line-height: 2.5; color: #3C3C3C; padding: 0 8px; "
     "letter-spacing: 0.5px;"
 )
 
@@ -125,12 +125,12 @@ INLINE_STYLES = {
         "margin: 26px 0 14px; letter-spacing: 0.5px;"
     ),
     "p": (
-        "margin: 22px 0; text-align: justify; line-height: 2.2; "
+        "margin: 34px 0; text-align: justify; line-height: 2.5; "
         "color: #3C3C3C; letter-spacing: 0.5px;"
     ),
     "blockquote": (
         "margin: 26px 0; padding: 16px 20px; "
-        "background: #F5F0EB; border-left: 4px solid #B8A08D; "
+        "background: #FFFFFF; border-left: 4px solid #6DB390; "
         "color: #6B6B6B; font-size: 15px; "
         "border-radius: 0 6px 6px 0; line-height: 1.9;"
     ),
@@ -148,17 +148,17 @@ INLINE_STYLES = {
     "li": "margin: 0; padding: 6px 0; line-height: 1.9;",
     "img": "max-width: 100%; border-radius: 6px; margin: 22px 0;",
     "a": (
-        "color: #7B9E89; text-decoration: none; "
-        "border-bottom: 1px solid #7B9E89;"
+        "color: #6DB390; text-decoration: none; "
+        "border-bottom: 1px solid #6DB390;"
     ),
-    "strong": "color: #B07D62; font-weight: bold;",
+    "strong": "color: #6DB390; font-weight: bold;",
     "em": "color: #6B8E7B; font-style: italic;",
     "table": (
         "width: 100%; border-collapse: collapse; margin: 20px 0; "
         "font-size: 14px;"
     ),
     "th": (
-        "background: #7B9E89; color: white; padding: 10px 14px; "
+        "background: #6DB390; color: white; padding: 10px 14px; "
         "text-align: left; font-weight: 600; letter-spacing: 0.5px;"
     ),
     "td": (
@@ -301,9 +301,18 @@ def _mute_source_footer(html):
     其后所有内容都会被降级——脚注请置于文末。
     """
     gray = "#9AA0A6"
-    m = re.search(r'<p[^>]*>[^<]*(数据来源|免责声明|风险提示与声明)[^<]*</p>', html)
-    if not m:
+    # 文末「说明 / 数据来源 / 免责声明 / 风险提示」等脚注一律灰色小字。
+    # 锚定非编号 h2 渲染出的标题段（26px #33404A），并取最后一个匹配，
+    # 避免正文中段含「说明」的句子被误降级。
+    matches = list(re.finditer(
+        r'<p style="font-size: 26px; font-weight: bold; color: #33404A;[^"]*">'
+        r'[^<]*(数据来源|来源说明|免责声明|免责|风险提示|说明|声明|参考资料|备注)'
+        r'[^<]*</p>',
+        html,
+    ))
+    if not matches:
         return html
+    m = matches[-1]
     before, heading, rest = html[:m.start()], m.group(0), html[m.end():]
     heading = re.sub(
         r'^<p[^>]*>',
@@ -317,7 +326,7 @@ def _mute_source_footer(html):
     )
     rest = re.sub(r'<p\b[^>]*>', f'<p style="{small}">', rest)
     rest = re.sub(r'<strong\b[^>]*>', f'<strong style="color: {gray}; font-weight: 600;">', rest)
-    rest = rest.replace("color: #7B9E89; font-weight: bold;", f"color: {gray}; font-weight: bold;")
+    rest = rest.replace("color: #6DB390; font-weight: bold;", f"color: {gray}; font-weight: bold;")
     return before + heading + rest
 
 
@@ -330,10 +339,10 @@ def _delist_for_wechat(html):
     注：仅支持单层列表（本场景无嵌套）。
     """
     item_style = (
-        "margin: 12px 0; line-height: 2.1; color: #3C3C3C; "
+        "margin: 18px 0; line-height: 2.4; color: #3C3C3C; "
         "text-align: justify; letter-spacing: 0.5px;"
     )
-    marker_style = "color: #7B9E89; font-weight: bold;"
+    marker_style = "color: #6DB390; font-weight: bold;"
 
     def conv_ul(m):
         items = re.findall(r'<li[^>]*>(.*?)</li>', m.group(1), re.S)
@@ -381,7 +390,7 @@ def _transform_numbered_headings(html):
             label = f"{num:02d}." if num is not None else f"{raw}、"
             return (
                 '<section style="margin: 46px 0 22px;">'
-                f'<p style="font-size: 48px; font-weight: bold; color: #7B9E89; '
+                f'<p style="font-size: 48px; font-weight: bold; color: #6DB390; '
                 'line-height: 1; margin: 0 0 8px; letter-spacing: 1px;">'
                 f'{label}</p>'
                 f'<p style="font-size: 27px; font-weight: bold; color: #33404A; '
@@ -624,9 +633,9 @@ def _render_table_png(headers, rows, out_path, font_path):
     s = 2  # 2x 渲染保证清晰
     fs, pad_x, pad_y, gap = 17 * s, 16 * s, 12 * s, 7 * s
     col_max, col_min = 210 * s, 70 * s
-    C_HBG, C_HTX = (123, 158, 137), (255, 255, 255)
+    C_HBG, C_HTX = (109, 179, 144), (255, 255, 255)
     C_RA, C_RB, C_GRID = (255, 255, 255), (246, 242, 237), (227, 221, 212)
-    C_TX, C_EM = (60, 60, 60), (176, 125, 98)
+    C_TX, C_EM = (60, 60, 60), (76, 144, 112)
 
     font = ImageFont.truetype(font_path, fs)
     tmp = ImageDraw.Draw(Image.new("RGB", (10, 10)))
