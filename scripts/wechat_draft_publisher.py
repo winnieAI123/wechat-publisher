@@ -125,7 +125,7 @@ INLINE_STYLES = {
         "margin: 26px 0 14px; letter-spacing: 0.5px;"
     ),
     "p": (
-        "margin: 34px 0; text-align: justify; line-height: 2.5; "
+        "margin: 40px 0; text-align: justify; line-height: 2.5; "
         "color: #3C3C3C; letter-spacing: 0.5px;"
     ),
     "blockquote": (
@@ -339,7 +339,7 @@ def _delist_for_wechat(html):
     注：仅支持单层列表（本场景无嵌套）。
     """
     item_style = (
-        "margin: 18px 0; line-height: 2.4; color: #3C3C3C; "
+        "margin: 22px 0; line-height: 2.4; color: #3C3C3C; "
         "text-align: justify; letter-spacing: 0.5px;"
     )
     marker_style = "color: #2E86E6; font-weight: bold;"
