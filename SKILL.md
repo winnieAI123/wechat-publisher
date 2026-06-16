@@ -75,6 +75,17 @@ Write the article in **Markdown format**:
 
 Save to: `D:\OpenClawResult\YYYY-MM-DD\article_name.md`
 
+### Step 1.5: 交付前去 AI 味自检（MANDATORY — 每篇都走一遍！）
+
+文章正文写完后、转 HTML 之前，**必须**按顺序过一遍：
+
+1. **`renwei-writing`（人味儿写作 skill）** — 润色时保住"文字背后那个人的存在感"，别越改越漂亮越没人味。
+2. **`humanizer` skill** — 按 Signs of AI writing 清单清除 AI 套路（空洞总结、三连排比、促销腔等）。
+3. **去掉全文破折号 `——`** — 改成句号 / 逗号 / 重组句子。交付前 `grep -c "——" article.md` 必须为 **0**。
+4. **零 emoji / 表情包** — 全文不放任何表情符号。grep emoji 码段确保为 0。
+
+> ❌ 跳过本步直接发布 = 返工。AI 味、破折号、表情包是用户最在意的三个雷区。
+
 ### Step 2: Generate Cover Image (MANDATORY — 每次必须新生成！)
 
 **每篇文章必须用 nano-banana-pro 根据文章内容生成一张全新的封面图。** 禁止使用默认封面或复用旧图。
