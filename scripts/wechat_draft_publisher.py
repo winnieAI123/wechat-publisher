@@ -5,15 +5,15 @@
 
 用法：
   # 通过环境变量配置（推荐）
-  set WECHAT_APP_ID=your_app_id
-  set WECHAT_APP_SECRET=your_app_secret
-  python wechat_draft_publisher.py --markdown article.md
+  export WECHAT_APP_ID=your_app_id
+  export WECHAT_APP_SECRET=your_app_secret
+  python3 wechat_draft_publisher.py --markdown article.md
 
   # 通过命令行参数
-  python wechat_draft_publisher.py --markdown article.md --app-id xxx --app-secret xxx
+  python3 wechat_draft_publisher.py --markdown article.md --app-id xxx --app-secret xxx
 
   # 测试连接
-  python wechat_draft_publisher.py --test
+  python3 wechat_draft_publisher.py --test
 """
 
 import os
@@ -75,7 +75,7 @@ def load_credentials(cli_app_id=None, cli_app_secret=None):
             "❌ 未找到微信公众号凭证！请通过以下方式之一配置：\n"
             "  1. 凭证文件: ~/.config/wechat-publisher/credentials.json\n"
             "     内容: {\"appId\": \"xxx\", \"appSecret\": \"xxx\"}\n"
-            "  2. 环境变量: set WECHAT_APP_ID=xxx && set WECHAT_APP_SECRET=xxx\n"
+            "  2. 环境变量: export WECHAT_APP_ID=xxx && export WECHAT_APP_SECRET=xxx\n"
             "  3. 命令行: --app-id xxx --app-secret xxx"
         )
 
@@ -951,9 +951,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:
-  python wechat_draft_publisher.py --test
-  python wechat_draft_publisher.py -m article.md
-  python wechat_draft_publisher.py -m article.md -c cover.jpg
+  python3 wechat_draft_publisher.py --test
+  python3 wechat_draft_publisher.py -m article.md
+  python3 wechat_draft_publisher.py -m article.md -c cover.jpg
         """
     )
 

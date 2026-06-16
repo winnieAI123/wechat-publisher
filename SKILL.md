@@ -39,7 +39,7 @@ The server's public IP must be whitelisted in the WeChat Developer Platform. If 
 ### 3. Dependencies
 
 ```bash
-python -m pip install markdown requests
+python3 -m pip install markdown requests
 ```
 
 ## When to Use
@@ -53,7 +53,7 @@ python -m pip install markdown requests
 > ⚠️ **MUST use wechat_draft_publisher.py for ALL publishing!**
 > The script contains莫兰迪学术风 inline CSS that is ESSENTIAL for formatting.
 > If you construct HTML yourself or call the WeChat API directly, the article will have NO STYLING and look terrible.
-> ALWAYS run: `python "<skill-path>/scripts/wechat_draft_publisher.py" --markdown "article.md" --cover "cover.png"`
+> ALWAYS run: `python3 "<skill-path>/scripts/wechat_draft_publisher.py" --markdown "article.md" --cover "cover.png"`
 
 > ⚠️ **NEVER use browser automation to interact with the WeChat backend (mp.weixin.qq.com)!**
 > It triggers anti-bot detection and blocks the account. ALWAYS use this skill's API script.
@@ -73,7 +73,7 @@ Write the article in **Markdown format**:
 - Use `**bold**` for emphasis (renders in red on WeChat)
 - Support: blockquotes, tables, lists, code blocks, images
 
-Save to: `D:\OpenClawResult\YYYY-MM-DD\article_name.md`
+Save to: `/Users/winnie/clauderesult/claudeMMDD/article_name.md`（MMDD 为当日日期，如 0616）
 
 ### Step 1.5: 交付前去 AI 味自检（MANDATORY — 每篇都走一遍！）
 
@@ -126,13 +126,13 @@ The script is bundled with this skill. Run it using its **absolute path**:
 # It's at: <this-skill-directory>/scripts/wechat_draft_publisher.py
 
 # With custom cover
-python "<skill-path>/scripts/wechat_draft_publisher.py" --markdown "article.md" --cover "cover.png"
+python3 "<skill-path>/scripts/wechat_draft_publisher.py" --markdown "article.md" --cover "cover.png"
 
 # Without cover (uses default)
-python "<skill-path>/scripts/wechat_draft_publisher.py" --markdown "article.md"
+python3 "<skill-path>/scripts/wechat_draft_publisher.py" --markdown "article.md"
 
 # Test connection
-python "<skill-path>/scripts/wechat_draft_publisher.py" --test
+python3 "<skill-path>/scripts/wechat_draft_publisher.py" --test
 ```
 
 **Important**: Use the actual absolute path to the script. You can find it by looking at this skill's installation directory.
