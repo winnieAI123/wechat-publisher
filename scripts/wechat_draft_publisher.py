@@ -129,10 +129,10 @@ INLINE_STYLES = {
         "color: #3C3C3C; letter-spacing: 0.5px;"
     ),
     "blockquote": (
-        "margin: 26px 0; padding: 16px 20px; "
-        "background: #FFFFFF; border-left: 4px solid #2E86E6; "
-        "color: #6B6B6B; font-size: 15px; "
-        "border-radius: 0 6px 6px 0; line-height: 1.9;"
+        "margin: 24px 0; padding: 14px 18px; "
+        "background: #EAF3FD; border-left: 4px solid #2E86E6; "
+        "color: #4A5A6A; font-size: 15px; "
+        "border-radius: 0 8px 8px 0; line-height: 1.9;"
     ),
     "code": (
         "background: #F0ECE6; padding: 2px 6px; border-radius: 3px; "
