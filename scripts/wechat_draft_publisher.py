@@ -95,10 +95,10 @@ def _find_credential_file():
 
 
 # ============================================================
-# 微信公众号排版 — 莫兰迪学术风内联样式
+# 微信公众号排版 — 蓝图科技风内联样式
 # ============================================================
 
-# 莫兰迪配色 + 学术风设计
+# 蓝图科技风配色（亮蓝 accent + 蓝图封面一致）
 # 主色调：亮蓝 #2E86E6（标题/表头/行内强调/引用块竖条统一，配蓝图封面） | 深蓝 #1F66C4（表格强调单元格）
 # 背景色：暖白 #F5F0EB | 亚麻色 #F0ECE6 | 浅灰 #F8F5F0
 
@@ -624,7 +624,7 @@ def _parse_md_tables(md):
 
 
 def _render_table_png(headers, rows, out_path, font_path):
-    """把单个表格渲染成莫兰迪风 PNG（绿表头 + 交替行 + 强调单元格棕色）。
+    """把单个表格渲染成蓝图科技风 PNG（亮蓝表头 + 交替行 + 深蓝强调单元格）。
 
     微信公众号正文不支持横向滚动，宽表只能转图片才不会逐字换行。
     """
@@ -739,7 +739,7 @@ def _render_md_tables_to_images(md, token):
 
 def markdown_to_wechat_html(md_content, token=None, image_dir=None,
                             tables_as_images=True):
-    """Markdown → 微信兼容 HTML（莫兰迪学术风内联样式 + 图片上传）
+    """Markdown → 微信兼容 HTML（蓝图科技风内联样式 + 图片上传）
 
     预处理顺序：剥 H1 → 包 ASCII 框图为代码块 → 修表格分隔 → 转 HTML → 注入内联样式
     """
